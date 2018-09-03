@@ -1,0 +1,43 @@
+# build: off
+
+image: Visual Studio 2017
+
+platform:
+  - x64
+
+branches:
+  only:
+    - master
+    - develop
+
+skip_tags: true
+
+environment:
+  nodejs_version: "7"
+
+cache:
+  - "%LOCALAPPDATA%/Yarn"
+  - node_modules -> package.json
+  - app/node_modules -> app/package.json
+
+shallow_clone: true
+
+clone_depth: 1
+
+install:
+  - ps: Install-Product node $env:nodejs_version $env:platform
+  - set CI=true
+  - yarn
+
+test_script:
+  - node --version
+  - yarn --version
+  # - yarn test
+  # - yarn e2e
+
+build_script:
+  - yarn release -- --ia32 --x64 --win nsis appx
+
+artifacts:
+  - path: 'dist\*.exe'
+  - path: 'dist\*.appx'
